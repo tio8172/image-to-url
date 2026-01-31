@@ -2,13 +2,14 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>이미지 뷰어</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Viewer</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="viewer-page">
-    <div id="viewer-container">
-        <img id="viewer-img" src="">
-        <p id="loading-text">이미지를 불러오는 중...</p>
+<body class="viewer-body">
+    <div id="viewerContainer">
+        <p id="statusText">이미지를 불러오는 중...</p>
+        <img id="viewerImg" src="" style="display: none;">
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
