@@ -1,54 +1,96 @@
-// 업로드 로직 (index.html에서 작동)
 const imageInput = document.getElementById('imageInput');
+const urlOutput = document.getElementById('urlOutput');
+const preview = document.getElementById('preview');
+const resultArea = document.getElementById('resultArea');
+const viewerImg = document.getElementById('viewerImg');
+const statusText = document.getElementById('statusText');
+const toast = document.getElementById('toast');
+
+// 업로드 로직
 if (imageInput) {
     imageInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = function(event) {
-            const base64 = event.target.result;
-            // 데이터를 압축
-            const compressed = LZString.compressToEncodedURIComponent(base64);
-            
-            // 뷰어 페이지 경로 생성 (GitHub 주소 기준)
-            const viewURL = window.location.origin + window.location.pathname.replace('index.html', '') + 'view.html#' + compressed;
-            
-            // 결과창 표시
-            document.getElementById('urlOutput').value = viewURL;
-            document.getElementById('preview').src = base64;
-            document.getElementById('resultArea').style.display = 'block';
-        };
         reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // 스마트 스케일링 (해상도 유지 정책)
+                const MAX_SIZE = 1700; 
+                let width = img.width;
+                let height = img.height;
+
+                if (width > MAX_SIZE || height > MAX_SIZE) {
+                    const ratio = Math.min(MAX_SIZE / width, MAX_SIZE / height);
+                    width = Math.round(width * ratio);
+                    height = Math.round(height * ratio);
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                // 선명도 최적화 설정
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+
+                ctx.drawImage(img, 0, 0, width, height); 
+
+                // [핵심] JPEG 대신 WebP 사용, 화질은 0.85 정도로 타협 (육안상 무손실 수준)
+                // 1.0은 데이터 팽창이 너무 심하므로 0.85~0.9를 강력 추천합니다.
+                let optimizedData = canvas.toDataURL('image/webp', 0.85);
+
+                // 만약 브라우저가 WebP를 지원하지 않으면 JPEG로 백업
+                if (optimizedData.length < 100) {
+                    optimizedData = canvas.toDataURL('image/jpeg', 0.85);
+                }
+
+                const compressed = LZString.compressToEncodedURIComponent(optimizedData);
+                
+                // UI 업데이트 로직
+                const currentURL = window.location.href.split('#')[0];
+                const directory = currentURL.substring(0, currentURL.lastIndexOf('/'));
+                
+                urlOutput.value = directory + '/view.html#' + compressed;
+                preview.src = optimizedData;
+                resultArea.style.display = 'block';
+            };
+        };
     });
 }
 
-// 뷰어 로드 로직 (view.html에서 작동)
-window.addEventListener('load', function() {
-    const viewerImg = document.getElementById('viewerImg');
-    if (!viewerImg) return;
-
-    const hash = window.location.hash.substring(1);
-    if (hash) {
-        try {
-            const decompressed = LZString.decompressFromEncodedURIComponent(hash);
-            if (decompressed) {
-                viewerImg.src = decompressed;
-                viewerImg.style.display = 'block';
-                document.getElementById('statusText').style.display = 'none';
+// Viewer Logic Update
+if (viewerImg) {
+    const decode = () => {
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+            try {
+                const data = LZString.decompressFromEncodedURIComponent(hash);
+                if (data) {
+                    viewerImg.src = data;
+                    viewerImg.style.display = 'block';
+                    if (statusText) statusText.style.display = 'none';
+                }
+            } catch (e) {
+                if (statusText) statusText.innerText = "Error: Failed to decode image.";
             }
-        } catch (e) {
-            document.getElementById('statusText').innerText = "이미지 복구에 실패했습니다.";
         }
-    } else {
-        document.getElementById('statusText').innerText = "공유된 이미지가 없습니다.";
-    }
-});
+    };
+    window.onload = decode;
+    viewerImg.onclick = () => viewerImg.classList.toggle('zoomed');
+}
 
-// 복사 함수
+
+// 복사 함수 (토스트 알림)
 function copyURL() {
-    const copyText = document.getElementById("urlOutput");
-    copyText.select();
-    navigator.clipboard.writeText(copyText.value);
-    alert("URL이 복사되었습니다!");
+    if (!urlOutput.value) return;
+    navigator.clipboard.writeText(urlOutput.value).then(() => {
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+    });
 }

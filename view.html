@@ -1,16 +1,14 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en" style="height: 100%;">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, minimum-scale=0.1">
     <title>Image Viewer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="viewer-body">
-    <div id="viewerContainer">
-        <p id="statusText">이미지를 불러오는 중...</p>
-        <img id="viewerImg" src="" style="display: none;">
-    </div>
+    <img id="viewerImg" src="" style="display: none;">
+    <p id="statusText" class="status-msg">Decoding image...</p>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <script src="script.js"></script>
