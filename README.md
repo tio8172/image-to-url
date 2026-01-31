@@ -1,4 +1,4 @@
-# [Image to URL](https://tio8172.github.io/image-to-url/)
+# [Image to URL](https://tio8172.github.io/Image-to-URL/)
 
 A simple, client-side tool that encodes images into highly compressed data strings and stores them directly within the URL. No database or server-side storage is required.
 
