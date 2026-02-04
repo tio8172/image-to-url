@@ -1,7 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
+/* 업로드 페이지 배경 (oklab 적용) */
 body.upload-body {
     font-family: 'Inter', sans-serif;
     color: white;
@@ -9,14 +14,18 @@ body.upload-body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #002158 0%, #280d41 50%, #380930 100%);
+    background: linear-gradient(
+        135deg in oklab, 
+        #002158 0%, 
+        #280d41 50%, 
+        #380930 100%
+    );
     background-attachment: fixed;
     position: relative;
     overflow-x: hidden;
 }
 
-body.upload-body.uploaded { align-items: flex-start; padding-top: 50px; }
-
+/* 뷰어 페이지 배경 (검은색 고정) */
 body.viewer-only-body {
     background-color: #000 !important;
     margin: 0;
@@ -24,26 +33,64 @@ body.viewer-only-body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow: show;
     font-family: 'Inter', sans-serif;
 }
 
-.status-overlay {
+/* 드래그 앤 드롭 화면 테두리 발광 효과 */
+body::after {
+    content: "";
     position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border: 0px solid #00ffcc;
+    pointer-events: none;
+    z-index: 10000;
+    transition: all 0.3s ease;
+    opacity: 0;
 }
 
-#statusText {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 1rem;
-    letter-spacing: 1px;
+body.drag-active::after {
+    border-width: 0px;
+    opacity: 1;
+    box-shadow: inset 0 0 150px rgba(132, 255, 230, 0.6);
 }
 
+body.upload-body.uploaded {
+    align-items: flex-start;
+    padding-top: 50px;
+    padding-bottom: 300px;
+}
+
+/* 업로드 버튼 발광 효과 */
+.upload-btn {
+    display: inline-block;
+    padding: 15px 40px;
+    border-radius: 60px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.4s ease;
+}
+
+.upload-btn:hover {
+    border-color: #00ffcc;
+    box-shadow: 0 0 25px rgba(0, 255, 204, 0.5), 
+                inset 0 0 15px rgba(0, 255, 204, 0.3);
+    transform: scale(1.02);
+    background: rgba(0, 255, 204, 0.1);
+}
+
+/* 뷰어 내부 레이아웃 */
 .viewer-container {
-    width: 100%; height: 100%;
-    display: flex; justify-content: center; align-items: center;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
 }
 
 #viewerImg {
@@ -52,6 +99,39 @@ body.viewer-only-body {
     object-fit: contain;
 }
 
+.status-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    text-align: center;
+}
+
+#statusText {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1rem;
+    letter-spacing: 1px;
+}
+
+.download-btn {
+    margin-top: 20px;
+    padding: 12px 25px;
+    border-radius: 30px;
+    background: #00ffcc;
+    color: #0b0621;
+    border: none;
+    cursor: pointer;
+    font-weight: 800;
+    transition: 0.3s;
+}
+
+.download-btn:hover {
+    transform: scale(1.05);
+    background: #ffffff;
+}
+
+/* 메인 UI 구성요소 */
 .main-container {
     width: 100%;
     max-width: 900px;
@@ -68,19 +148,6 @@ body.viewer-only-body {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-}
-
-.upload-btn {
-    display: inline-block;
-    padding: 15px 40px;
-    border-radius: 60px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(15px);
-    color: white;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.3s;
 }
 
 .settings-bar-horizontal {
@@ -124,28 +191,35 @@ body.viewer-only-body {
     width: 100%;
     font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.4);
+    line-height: 1.4;
 }
 
 .result-card {
     margin-top: 40px;
     background: rgba(255, 255, 255, 0.04);
-    padding: 40px;
+    padding: 30px;
     border-radius: 40px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(30px);
+    animation: fadeIn 1.0s ease-out;
+    width: 100%;
+    overflow: hidden;
 }
 
 .preview-container {
     display: flex;
     justify-content: center;
+    align-items: center;
     margin-bottom: 30px;
+    width: 100%;
 }
 
 #preview {
     max-width: 100%;
-    max-height: 400px;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
     border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
 .copy-box-full {
@@ -155,11 +229,7 @@ body.viewer-only-body {
     border: 1px solid rgba(0, 255, 204, 0.2);
     cursor: pointer;
     transition: 0.2s;
-}
-
-.copy-box-full:hover {
-    border-color: #00ffcc;
-    background: rgba(0, 0, 0, 0.6);
+    width: 100%;
 }
 
 .url-display-text {
@@ -195,38 +265,59 @@ body.viewer-only-body {
     bottom: 40px;
 }
 
-.main-container {
-    width: 100%;
-    max-width: 900px;
-    text-align: center;
-    z-index: 10;
-    padding: 20px;
-    margin-bottom: 100px; 
-}
-
-body.upload-body.uploaded { 
-    align-items: flex-start; 
-    padding-top: 50px; 
-    padding-bottom: 50px; 
-}
-
-.result-card {
-    margin-top: 40px;
-    background: rgba(255, 255, 255, 0.04);
-    padding: 40px;
-    border-radius: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(30px);
-    animation: fadeIn 1.0s ease-out;
-}
-
 @keyframes fadeIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(30px);
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 링크 길이 경고 메시지 스타일 */
+.url-warning {
+    display: none; /* 기본적으로 숨김 */
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255, 87, 34, 0.15);
+    border: 1px dashed #ff5722;
+    border-radius: 12px;
+    color: #ff8a65;
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+.url-warning.show {
+    display: block; /* 조건 충족 시 표시 */
+}
+
+/* 오른쪽 하단 깃헙 링크 스타일 */
+.github-link {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.github-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #00ffcc;
+    color: #00ffcc;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 255, 204, 0.2);
+}
+
+.github-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor; /* 텍스트 색상을 따라감 */
 }

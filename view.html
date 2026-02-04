@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Viewer</title>
+    <title>Image to URL Viewer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="viewer-only-body">
     <div id="statusContainer" class="status-overlay">
-        <p id="statusText">Decoding image data...</p>
+        <p id="statusText">Decoding high-density binary data...</p>
     </div>
 
     <div class="viewer-container">
         <img id="viewerImg" src="" alt="Decoded Image" style="display: none;">
+        <button id="downloadBtn" class="download-btn" style="display:none;">Image Download</button>
     </div>
     <script src="script.js"></script>
 </body>
